@@ -1,0 +1,134 @@
+{% extends 'shop/basic.html' %}
+{% block css %}
+.col-md-3
+{
+display: inline-block;
+margin-left:-4px;
+}
+
+.carousel-indicators .active {
+background-color: blue;
+}
+
+.col-md-3 img{
+
+max-width: 285px;
+height: 242px;
+}
+
+body .carousel-indicator li{
+background-color: blue;
+}
+
+body .carousel-indicators{
+bottom: 0;
+}
+
+body .carousel-control-prev-icon,
+body .carousel-control-next-icon{
+background-color: blue;
+}
+
+.carousel-control-prev,
+.carousel-control-next{
+top: auto;
+bottom: auto;
+padding-top: 222px;
+}
+body .no-padding{
+padding-left: 0,
+padding-right: 0;
+}
+{% endblock %}
+
+{% block body %}
+{% load static %}
+<div class="container">
+
+  <!--Slideshow starts here -->
+  {% for product, range, nSlides in allProds %}
+  <h5 class='my-4'> {{product.0.category}}</h5>
+  <div class="row">
+    <div id="demo{{forloop.counter}}" class="col carousel slide my-3" data-ride="carousel">
+      <ul class="carousel-indicators">
+        <li data-target="#demo{{forloop.counter}}" data-slide-to="0" class="active"></li>
+
+        {% for i in range %}
+        <li data-target="#demo{{forloop.parentloop.counter}}" data-slide-to="{{i}}"></li>
+        {% endfor %}
+      </ul>
+
+
+      <div class="container carousel-inner no-padding">
+
+        <div class="carousel-item active">
+
+
+          {% for i in product %}
+          <div class="col-xs-3 col-sm-3 col-md-3">
+            <div class="card" style="width: 18rem;">
+              <img src='/media/{{i.image}}' class="card-img-top" alt="...">
+              <div class="card-body">
+                <h5 class="card-title">{{i.product_name}}</h5>
+                <p class="card-text">{{i.description}}</p>
+                <button id="pr{{i.id}}" class="btn btn-primary cart">Add To Cart</button>
+                <a href="/shop/products/{{i.id}}">
+                <button id="qv{{i.id}}" class="btn btn-primary cart">Quick View</button>
+                </a>
+              </div>
+            </div>
+          </div>
+          {% if forloop.counter|divisibleby:4 and forloop.counter > 0 and not forloop.last %}
+          <!-- ## div/4 bcz for loop.counter starts from 1 -->
+        </div>
+        <div class="carousel-item">
+          {% endif %}
+
+          {% endfor %}
+        </div>
+
+      </div>
+    </div>
+    <!-- left and right controls for the slide -->
+    <a class="carousel-control-prev" href="#demo{{forloop.counter}}" data-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </a>
+    <a class="carousel-control-next" href="#demo{{forloop.counter}}" data-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+<!-- Logic for adding items to cart -->
+{% block js %}
+<script>
+  // console.log('working');
+
+  if (localStorage.getItem('cart') == null) {
+    var cart = {};
+  } else {
+    cart = JSON.parse(localStorage.getItem('cart'));
+  }
+
+  $('.cart').click(function () {
+    // console.log('clicked');
+    var idstr = this.id.toString();
+    console.log(idstr)
+    if (cart[idstr] != undefined) {
+      cart[idstr] += 1;  // if item x is already present in cart then increase the number of that item x.
+    } else {
+      cart[idstr] = 1;  // if item x's count = 0, then set x = 1. because this is the first item x. 
+    }
+    // console.log(cart);
+    localStorage.setItem('cart', JSON.stringify(cart)) // save the item counts into localStorage. It will be saved even if the page is reloaded.
+    document.getElementById('cart').innerHTML = Object.keys(cart).length;
+  });
+
+  $('#popcart').popover();
+
+  document.getElementById("popcart").setAttribute('data-content', '<h5> You items in the cart </h5>');
+
+</script>
+{% endblock %}
